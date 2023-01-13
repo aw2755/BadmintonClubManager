@@ -5,7 +5,6 @@ from dotenv import load_dotenv
 
 load_dotenv('.env')
 TOKEN = os.environ.get("Token")
-print(TOKEN)
 
 def run_bot():
     client = commands.Bot(command_prefix='!', intents=discord.Intents.all())
