@@ -7,6 +7,11 @@ def run_bot():
     client = commands.Bot(command_prefix='!', intents=discord.Intents.all())
     client.remove_command('help')
     queue = []
+    court1 = []
+    court2 = []
+    court3 = []
+    court4 = []
+    
 
     @client.event
     async def on_ready():
@@ -22,16 +27,40 @@ def run_bot():
         embed.add_field(name='!leave', value="Leaves the queue", inline=False)
         embed.add_field(name='!show', value="Shows the queue", inline=False)
         await ctx.message.author.send(embed=embed)
-
+    
     @client.command(name="join")
-    async def _join(ctx):
-        player = ctx.message.author
-        if queue.__contains__(player):
-            await ctx.message.author.send("`you are already in the queue =]`")
-        else:
-            queue.append(player)
-            await ctx.message.author.send("`you have joined the queue`")
+    async def _join(ctx, court_num):
+        print(ctx.message)
+        try:
+            if(court_num == 0):
+                print("comes in here 0")
+                ctx.channel.send("Usage: !join <court_number(1-4)>")
+                return
+            player = ctx.message.author
+            if queue.__contains__(player):
+                await ctx.message.author.send("`you are already in a queue =]`")
+            else:
+                queue.append(player)
+                match court_num:
+                    case "1":
+                        court1.append(player)
+                        await ctx.message.author.send("`you have joined the queue for court 1`")
+                    case "2":
+                        court2.append(player)
+                        await ctx.message.author.send("`you have joined the queue for court 2`")
+                    case "3":
+                        court3.append(player)
+                        await ctx.message.author.send("`you have joined the queue for court 3`")
+                    case "4":
+                        court4.append(player)
+                        await ctx.message.author.send("`you have joined the queue for court 4`")
+                    case _: 
+                        ctx.channel.send("court_number must be (1-4)")
+        
+        except Exception as e:
+            print("hi")
 
+            
     @client.command(name="leave")
     async def _leave(ctx):
         player = ctx.message.author
@@ -54,6 +83,5 @@ def run_bot():
                 embed.add_field(name=[x + 1, queue[x].nick], value="", inline=False)
 
         await ctx.channel.send(embed=embed)
-        print("hi")
 
     client.run(TOKEN)
