@@ -27,7 +27,7 @@ def run_bot():
         embed = discord.Embed(colour=discord.Colour.orange())
         embed.set_author(name='Help')
         embed.add_field(name='!help', value="Shows all commands", inline=False)
-        embed.add_field(name='!join', value="Joins the queue", inline=False)
+        embed.add_field(name='!join <num>', value="Joins the queue", inline=False)
         embed.add_field(name='!leave', value="Leaves the queue", inline=False)
         embed.add_field(name='!show', value="Shows the queue", inline=False)
         await ctx.message.author.send(embed=embed)
@@ -36,47 +36,48 @@ def run_bot():
     async def _join(ctx, court_num):
         player = ctx.message.author
         if queue.__contains__(player):
-            await ctx.message.author.send("`you are already in a queue =]`")
+            await ctx.message.author.send("```ansi\n\u001b[1;0;35myou are already in a queue =]```")
         else:
-            queue.append(player)
             match court_num:
                 case "1":
+                    queue.append(player)
                     court1.append(player)
-                    await ctx.message.author.send("`you have joined the queue for court 1`")
+                    await ctx.message.author.send("```ansi\n\u001b[1;0;35myou have **joined** the queue for court 1```")
                 case "2":
+                    queue.append(player)
                     court2.append(player)
-                    await ctx.message.author.send("`you have joined the queue for court 2`")
+                    await ctx.message.author.send("```ansi\n\u001b[1;0;35myou have **joined** the queue for court 2```")
                 case "3":
+                    queue.append(player)
                     court3.append(player)
-                    await ctx.message.author.send("`you have joined the queue for court 3`")
+                    await ctx.message.author.send("```ansi\n\u001b[1;0;35myou have **joined** the queue for court 3```")
                 case "4":
+                    queue.append(player)
                     court4.append(player)
-                    await ctx.message.author.send("`you have joined the queue for court 4`")
+                    await ctx.message.author.send("```ansi\n\u001b[1;0;35myou have **joined** the queue for court 4```")
                 case _: 
-                    await ctx.channel.send("court_number must be (1-4)")
+                    user_id = ctx.message.author.id
+                    await ctx.channel.send(f"<@{user_id}>** court_number must be (1-4)**")
             
     @client.command(name="leave")
-    async def _leave(ctx, court_num):
+    async def _leave(ctx):
         player = ctx.message.author
         if queue.__contains__(player):
             queue.remove(player)
-            match court_num:
-                    case "1":
-                        court1.remove(player)
-                        await ctx.message.author.send("`you have left the queue for court 1`")
-                    case "2":
-                        court2.remove(player)
-                        await ctx.message.author.send("`you have left the queue for court 2`")
-                    case "3":
-                        court3.remove(player)
-                        await ctx.message.author.send("`you have left the queue for court 3`")
-                    case "4":
-                        court4.remove(player)
-                        await ctx.message.author.send("`you have left the queue for court 4`")
-                    case _: 
-                        ctx.channel.send("court_number must be (1-4)")
+            if court1.__contains__(player):
+                court1.remove(player)
+                await ctx.message.author.send("```ansi\n\u001b[1;0;35myou have **left** the queue for court 1```")
+            elif court2.__contains__(player):
+                court2.remove(player)
+                await ctx.message.author.send("```ansi\n\u001b[1;0;35myou have **left** the queue for court 2```")
+            elif court3.__contains__(player):
+                court3.remove(player)
+                await ctx.message.author.send("```ansi\n\u001b[1;0;35myou have **left** the queue for court 3```")
+            elif court4.__contains__(player):
+                court4.remove(player)
+                await ctx.message.author.send("```ansi\n\u001b[1;0;35myou have **left** the queue for court 4```")
         else:
-            await ctx.message.author.send("`you are not in the queue, feel free to join =]`")
+            await ctx.message.author.send("```ansi\n\u001b[1;0;35myou are not in the queue, feel free to join =]```")
 
     @client.command(name="show")
     async def _show(ctx):
@@ -117,14 +118,15 @@ def run_bot():
             else:
                 embed4.add_field(name=[x + 1, court4[x].nick], value="", inline=False)        
 
-        await ctx.channel.send(embed=embed1)
-        await ctx.channel.send(embed=embed2)
-        await ctx.channel.send(embed=embed3)
-        await ctx.channel.send(embed=embed4)
+        await ctx.message.author.send(embed=embed1)
+        await ctx.message.author.send(embed=embed2)
+        await ctx.message.author.send(embed=embed3)
+        await ctx.message.author.send(embed=embed4)
 
     @client.event
     async def on_command_error(ctx, error):
         if isinstance(error, commands.MissingRequiredArgument):
-            await ctx.send('**Please pass in all required argumenets. Type !help for list of commands**')
+            user_id = ctx.message.author.id
+            await ctx.send(f"**Please pass in all required argumenets <@{user_id}>. Type !help for list of commands**")
 
     client.run(str(TOKEN))
