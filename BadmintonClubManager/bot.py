@@ -54,5 +54,6 @@ def run_bot():
                 embed.add_field(name=[x + 1, queue[x].nick], value="", inline=False)
 
         await ctx.channel.send(embed=embed)
+        print("hi")
 
     client.run(TOKEN)
