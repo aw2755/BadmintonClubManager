@@ -1,9 +1,13 @@
 import discord
+import os
 from discord.ext import commands
+from dotenv import load_dotenv
 
+load_dotenv('.env')
+TOKEN = os.environ.get("Token")
+print(TOKEN)
 
 def run_bot():
-    TOKEN = 'MTA2MzI4OTk3MzU2ODE4NDMyMA.GBIajJ.cWE2WNaDEJEo-Ys86sn6dCkppB-bhqYV6YMa1c'
     client = commands.Bot(command_prefix='!', intents=discord.Intents.all())
     client.remove_command('help')
     queue = []
@@ -77,20 +81,50 @@ def run_bot():
     @client.command(name="show")
     async def _show(ctx):
 
-        embed = discord.Embed(colour=discord.Colour.orange())
-        embed.set_author(name='Current Queue')
+        embed1 = discord.Embed(colour=discord.Colour.orange())
+        embed1.set_author(name='COURT 1')
 
-        for x in range(len(queue)):
-            if queue[x].nick is None:
-                embed.add_field(name=[x + 1, queue[x].name], value="", inline=False)
+        embed2 = discord.Embed(colour=discord.Colour.orange())
+        embed2.set_author(name='COURT 2')
+
+        embed3 = discord.Embed(colour=discord.Colour.orange())
+        embed3.set_author(name='COURT 3')
+
+        embed4 = discord.Embed(colour=discord.Colour.orange())
+        embed4.set_author(name='COURT 4')
+
+        for x in range(len(court1)):
+            if court1[x].nick is None:
+                embed1.add_field(name=[x + 1, court1[x].name], value="", inline=False)
             else:
-                embed.add_field(name=[x + 1, queue[x].nick], value="", inline=False)
+                embed1.add_field(name=[x + 1, court1[x].nick], value="", inline=False)
 
-        await ctx.channel.send(embed=embed)
+        for x in range(len(court2)):
+            if court2[x].nick is None:
+                embed2.add_field(name=[x + 1, court2[x].name], value="", inline=False)
+            else:
+                embed2.add_field(name=[x + 1, court2[x].nick], value="", inline=False)
+
+        for x in range(len(court3)):
+            if court3[x].nick is None:
+                embed3.add_field(name=[x + 1, court3[x].name], value="", inline=False)
+            else:
+                embed3.add_field(name=[x + 1, court3[x].nick], value="", inline=False)
+
+        for x in range(len(court4)):
+            if court4[x].nick is None:
+                embed4.add_field(name=[x + 1, court4[x].name], value="", inline=False)
+            else:
+                embed4.add_field(name=[x + 1, court4[x].nick], value="", inline=False)        
+
+        await ctx.channel.send(embed=embed1)
+        await ctx.channel.send(embed=embed2)
+        await ctx.channel.send(embed=embed3)
+        await ctx.channel.send(embed=embed4)
 
     @client.event
     async def on_command_error(ctx, error):
         if isinstance(error, commands.MissingRequiredArgument):
-            await ctx.send('**Please pass in all requirements.**')
+            await ctx.send('**Please pass in all required argumenets. Type !help for list of commands**')
 
-    client.run(TOKEN)
+    client.run(str(TOKEN))
