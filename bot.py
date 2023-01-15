@@ -10,6 +10,7 @@ def run_bot():
     client = commands.Bot(command_prefix='!', intents=discord.Intents.all())
     client.remove_command('help')
     queue = []
+    show = []
     court1 = []
     court2 = []
     court3 = []
@@ -78,8 +79,8 @@ def run_bot():
         else:
             await ctx.message.author.send("```ansi\n\u001b[1;0;35myou are not in the queue, feel free to join =]```")
 
-    @client.command(name="show")
-    async def _show(ctx):
+    @client.command(name="queue")
+    async def _queue(ctx):
         embed1 = discord.Embed(colour=discord.Colour.orange())
         embed1.set_author(name='COURT 1')
         for x in range(len(court1)):
@@ -148,5 +149,29 @@ def run_bot():
         if isinstance(error, commands.MissingRequiredArgument):
             user_id = ctx.message.author.id
             await ctx.channel.send(f"**Please pass in all required argumenets <@{user_id}>. Type !help for list of commands**")
+
+    @client.command(name="create")
+    async def _create(ctx, time):
+        user_id = ctx.message.author.id
+        await ctx.channel.send(f"**<@{user_id}> wants to play badminton at {time}, react with :badminton: if you want to join**")
+
+    @client.command(name="show")
+    async def _show(ctx):
+        embed = discord.Embed(colour=discord.Colour.orange())
+        embed.set_author(name='PEOPLE GOING')
+        embed.add_field(name=len(show), value="people going", inline=False)
+        for x in range(len(show)):
+            embed.add_field(name=show[x].name, value="", inline=False)
+        await ctx.channel.send(embed=embed)
+
+    @client.event
+    async def on_reaction_add(reaction, user):
+        if reaction.emoji == '🏸':
+            show.append(user)
+
+    @client.event
+    async def on_reaction_remove(reaction, user):
+        if reaction.emoji == '🏸':
+            show.remove(user)
 
     client.run(str(TOKEN))
