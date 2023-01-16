@@ -1,4 +1,3 @@
-import asyncio
 import discord
 import os
 from discord.ext import commands
@@ -38,6 +37,10 @@ def run_bot():
     
     @client.command(name="join")
     async def _join(ctx, court_num):
+        user_id = ctx.message.author.id
+        if(len(court_num) != 1):
+            await ctx.channel.send(f"<@{user_id}>** court_number must be (1-4)**")
+            return
         player = ctx.message.author
         if queue.__contains__(player):
             await ctx.message.author.send("```ansi\n\u001b[1;0;35myou are already in a queue =]```")
@@ -60,7 +63,6 @@ def run_bot():
                     court4.append(player)
                     await ctx.message.author.send("```ansi\n\u001b[1;0;35myou have **joined** the queue for court 4```")
                 case _: 
-                    user_id = ctx.message.author.id
                     await ctx.channel.send(f"<@{user_id}>** court_number must be (1-4)**")
             
     @client.command(name="leave")
@@ -150,6 +152,10 @@ def run_bot():
 
     @client.command(name="create")
     async def _create(ctx, time):
+        user_id = ctx.message.author.id
+        if(len(time) != 1):
+            await ctx.channel.send(f"<@{user_id}>** court_number must be (1-4)**")
+            return
         show.clear()
         author = ctx.message.author
         user_id = ctx.message.author.id
