@@ -1,3 +1,4 @@
+import asyncio
 import discord
 import os
 from discord.ext import commands
@@ -25,11 +26,14 @@ def run_bot():
     async def _help(ctx):
 
         embed = discord.Embed(colour=discord.Colour.orange())
-        embed.set_author(name='Help')
-        embed.add_field(name='!help', value="Shows all commands", inline=False)
-        embed.add_field(name='!join <num>', value="Joins the queue", inline=False)
-        embed.add_field(name='!leave', value="Leaves the queue", inline=False)
-        embed.add_field(name='!show', value="Shows the queue", inline=False)
+        embed.set_author(name='__Command List__')
+        embed.add_field(name='!help', value="Shows all the commands", inline=False)
+        embed.add_field(name='!join <num>', value="Joins a queue for a court", inline=False)
+        embed.add_field(name='!leave', value="Leaves a queue for a court", inline=False)
+        embed.add_field(name='!queue', value="Shows the queues for all courts", inline=False)
+        embed.add_field(name='!create <time>am/pm', value="Creates an event", inline=False)
+        embed.add_field(name='!show', value="Shows everyone who is interested in going to the created event", inline=False)
+        embed.add_field(name='!done <num> <password>', value="Clears everyone off a court **FOR ADMIN USE ONLY**", inline=False)
         await ctx.message.author.send(embed=embed)
     
     @client.command(name="join")
@@ -82,7 +86,7 @@ def run_bot():
     @client.command(name="queue")
     async def _queue(ctx):
         embed1 = discord.Embed(colour=discord.Colour.orange())
-        embed1.set_author(name='COURT 1')
+        embed1.set_author(name='__COURT 1__')
         for x in range(len(court1)):
             if court1[x].nick is None:
                 embed1.add_field(name=[x + 1, court1[x].name], value="", inline=False)
@@ -90,7 +94,7 @@ def run_bot():
                 embed1.add_field(name=[x + 1, court1[x].nick], value="", inline=False)
 
         embed2 = discord.Embed(colour=discord.Colour.orange())
-        embed2.set_author(name='COURT 2')
+        embed2.set_author(name='__COURT 2__')
         for x in range(len(court2)):
             if court2[x].nick is None:
                 embed2.add_field(name=[x + 1, court2[x].name], value="", inline=False)
@@ -98,7 +102,7 @@ def run_bot():
                 embed2.add_field(name=[x + 1, court2[x].nick], value="", inline=False)
 
         embed3 = discord.Embed(colour=discord.Colour.orange())
-        embed3.set_author(name='COURT 3')
+        embed3.set_author(name='__COURT 3__')
         for x in range(len(court3)):
             if court3[x].nick is None:
                 embed3.add_field(name=[x + 1, court3[x].name], value="", inline=False)
@@ -106,7 +110,7 @@ def run_bot():
                 embed3.add_field(name=[x + 1, court3[x].nick], value="", inline=False)
         
         embed4 = discord.Embed(colour=discord.Colour.orange())
-        embed4.set_author(name='COURT 4')
+        embed4.set_author(name='__COURT 4__')
         for x in range(len(court4)):
             if court4[x].nick is None:
                 embed4.add_field(name=[x + 1, court4[x].name], value="", inline=False)
@@ -144,34 +148,54 @@ def run_bot():
         else:
             await ctx.channel.send(f"<@{user_id}>** this command is only for the admins!**")
 
+    @client.command(name="create")
+    async def _create(ctx, time):
+        show.clear()
+        author = ctx.message.author
+        user_id = ctx.message.author.id
+        await ctx.channel.send(f"**<@{user_id}> wants to play badminton at {time}**")
+        message = await ctx.channel.send("react to this message with 🏸 if you would like to join")
+        await message.add_reaction("🏸")
+        if author.nick is None:
+            show.append(author)
+        else:
+            show.append(author)
+
+    @client.command(name="show")
+    async def _show(ctx):
+        embed = discord.Embed(colour=discord.Colour.orange())
+        embed.set_author(name='__PEOPLE GOING__')
+        embed.add_field(name=len(show), value="", inline=False)
+        for x in range(len(show)):
+            if show[x].nick is None:
+                embed.add_field(name=show[x].name, value="", inline=False)
+            else:
+                embed.add_field(name=show[x].nick, value="", inline=False)
+        await ctx.channel.send(embed=embed)
+
+    @client.event
+    async def on_reaction_add(reaction, user):
+        message = "react to this message with 🏸 if you would like to join"
+        for x in range(len(show)):
+            if(show[x].name == user.name):
+                return
+        if reaction.message.content == message and reaction.emoji == '🏸' and user.name != "BadmintonClubManager":
+                show.append(user)
+
+    @client.event
+    async def on_reaction_remove(reaction, user):
+        message = "react to this message with 🏸 if you would like to join"
+        for x in range(len(show)):
+            if(show[x].name == user.name):
+                return
+        if reaction.message.content == message and reaction.emoji == '🏸' and user.name != "BadmintonClubManager":
+            show.remove(user)
+
     @client.event
     async def on_command_error(ctx, error):
         if isinstance(error, commands.MissingRequiredArgument):
             user_id = ctx.message.author.id
             await ctx.channel.send(f"**Please pass in all required argumenets <@{user_id}>. Type !help for list of commands**")
 
-    @client.command(name="create")
-    async def _create(ctx, time):
-        user_id = ctx.message.author.id
-        await ctx.channel.send(f"**<@{user_id}> wants to play badminton at {time}, react with :badminton: if you want to join**")
-
-    @client.command(name="show")
-    async def _show(ctx):
-        embed = discord.Embed(colour=discord.Colour.orange())
-        embed.set_author(name='PEOPLE GOING')
-        embed.add_field(name=len(show), value="people going", inline=False)
-        for x in range(len(show)):
-            embed.add_field(name=show[x].name, value="", inline=False)
-        await ctx.channel.send(embed=embed)
-
-    @client.event
-    async def on_reaction_add(reaction, user):
-        if reaction.emoji == '🏸':
-            show.append(user)
-
-    @client.event
-    async def on_reaction_remove(reaction, user):
-        if reaction.emoji == '🏸':
-            show.remove(user)
 
     client.run(str(TOKEN))
