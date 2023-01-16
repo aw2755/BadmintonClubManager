@@ -19,8 +19,9 @@ def run_bot():
 
     @client.event
     async def on_ready():
-        print(f'{client.user} is now running')
-
+        print(f'{client.user.name} is now running')
+        await client.change_presence(activity=discord.Game(name="!help"))
+    
     @client.command(name="help")
     async def _help(ctx):
 
