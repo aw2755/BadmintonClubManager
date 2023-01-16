@@ -39,9 +39,6 @@ def run_bot():
     @client.command(name="join")
     async def _join(ctx, court_num):
         user_id = ctx.message.author.id
-        if(len(court_num) != 1):
-            await ctx.channel.send(f"<@{user_id}>** court_number must be (1-4)**")
-            return
         player = ctx.message.author
         if queue.__contains__(player):
             await ctx.message.author.send("```ansi\n\u001b[1;0;35myou are already in a queue =]```")
@@ -50,41 +47,42 @@ def run_bot():
                 case "1":
                     queue.append(player)
                     court1.append(player)
-                    await ctx.message.author.send("```ansi\n\u001b[1;0;35myou have **joined** the queue for court 1```")
+                    await ctx.channel.send(f"<@{user_id}>** has joined court 1**")
                 case "2":
                     queue.append(player)
                     court2.append(player)
-                    await ctx.message.author.send("```ansi\n\u001b[1;0;35myou have **joined** the queue for court 2```")
+                    await ctx.channel.send(f"<@{user_id}>** has joined court 2**")
                 case "3":
                     queue.append(player)
                     court3.append(player)
-                    await ctx.message.author.send("```ansi\n\u001b[1;0;35myou have **joined** the queue for court 3```")
+                    await ctx.channel.send(f"<@{user_id}>** has joined court 3**")
                 case "4":
                     queue.append(player)
                     court4.append(player)
-                    await ctx.message.author.send("```ansi\n\u001b[1;0;35myou have **joined** the queue for court 4```")
+                    await ctx.channel.send(f"<@{user_id}>** has joined court 4**")
                 case _: 
                     await ctx.channel.send(f"<@{user_id}>** court_number must be (1-4)**")
-            
+             
     @client.command(name="leave")
     async def _leave(ctx):
+        user_id = ctx.message.author.id
         player = ctx.message.author
         if queue.__contains__(player):
             queue.remove(player)
             if court1.__contains__(player):
                 court1.remove(player)
-                await ctx.message.author.send("```ansi\n\u001b[1;0;35myou have **left** the queue for court 1```")
+                await ctx.channel.send(f"<@{user_id}>** has left court 1**")
             elif court2.__contains__(player):
                 court2.remove(player)
-                await ctx.message.author.send("```ansi\n\u001b[1;0;35myou have **left** the queue for court 2```")
+                await ctx.channel.send(f"<@{user_id}>** has left court 2**")
             elif court3.__contains__(player):
                 court3.remove(player)
-                await ctx.message.author.send("```ansi\n\u001b[1;0;35myou have **left** the queue for court 3```")
+                await ctx.channel.send(f"<@{user_id}>** has left court 3**")
             elif court4.__contains__(player):
                 court4.remove(player)
-                await ctx.message.author.send("```ansi\n\u001b[1;0;35myou have **left** the queue for court 4```")
+                await ctx.channel.send(f"<@{user_id}>** has left court 4**")
         else:
-            await ctx.message.author.send("```ansi\n\u001b[1;0;35myou are not in the queue, feel free to join =]```")
+            await ctx.message.channel.send(f"<@{user_id}>**, you are not in a queue**")
 
     @client.command(name="queue")
     async def _queue(ctx):
@@ -154,9 +152,6 @@ def run_bot():
     @client.command(name="create")
     async def _create(ctx, time):
         user_id = ctx.message.author.id
-        if(len(time) != 1):
-            await ctx.channel.send(f"<@{user_id}>** court_number must be (1-4)**")
-            return
         show.clear()
         author = ctx.message.author
         user_id = ctx.message.author.id
