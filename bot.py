@@ -9,7 +9,6 @@ TOKEN = os.environ.get("Token")
 def run_bot():
     client = commands.Bot(command_prefix='-', intents=discord.Intents.all())
     client.remove_command('help')
-    queue = []
     show = []
     court1 = []
     court2 = []
@@ -24,7 +23,6 @@ def run_bot():
     
     @client.command(name="help")
     async def _help(ctx):
-
         embed = discord.Embed(colour=discord.Colour.orange())
         embed.set_author(name='__Command List__')
         embed.add_field(name='-help', value="Shows all the commands", inline=False)
@@ -33,54 +31,48 @@ def run_bot():
         embed.add_field(name='-queue', value="Shows the queues for all courts", inline=False)
         embed.add_field(name='-create <time>am/pm', value="Creates an event", inline=False)
         embed.add_field(name='-show', value="Shows everyone who is interested in going to the created event", inline=False)
-        embed.add_field(name='-done <num>', value="Clears everyone off a court **FOR E-board USE ONLY**", inline=False)
+        #embed.add_field(name='-done <num>', value="Clears everyone off a court **FOR E-board USE ONLY**", inline=False)
         await ctx.message.author.send(embed=embed)
     
     @client.command(name="join")
     async def _join(ctx, court_num):
         user_id = ctx.message.author.id
         player = ctx.message.author
-        if queue.__contains__(player):
-            await ctx.message.author.send("```ansi\n\u001b[1;0;35myou are already in a queue =]```")
-        else:
+        if (not court1.__contains__(player)) and (not court2.__contains__(player)) and (not court3.__contains__(player)) and (not court4.__contains__(player)):
             match court_num:
                 case "1":
-                    queue.append(player)
                     court1.append(player)
                     await ctx.channel.send(f"<@{user_id}>** has joined court 1**")
                 case "2":
-                    queue.append(player)
                     court2.append(player)
                     await ctx.channel.send(f"<@{user_id}>** has joined court 2**")
                 case "3":
-                    queue.append(player)
                     court3.append(player)
                     await ctx.channel.send(f"<@{user_id}>** has joined court 3**")
                 case "4":
-                    queue.append(player)
                     court4.append(player)
                     await ctx.channel.send(f"<@{user_id}>** has joined court 4**")
                 case _: 
                     await ctx.channel.send(f"<@{user_id}>** court_number must be (1-4)**")
+        else:
+            await ctx.message.author.send("```you are already in a queue =]```")
              
     @client.command(name="leave")
     async def _leave(ctx):
         user_id = ctx.message.author.id
         player = ctx.message.author
-        if queue.__contains__(player):
-            queue.remove(player)
-            if court1.__contains__(player):
-                court1.remove(player)
-                await ctx.channel.send(f"<@{user_id}>** has left court 1**")
-            elif court2.__contains__(player):
-                court2.remove(player)
-                await ctx.channel.send(f"<@{user_id}>** has left court 2**")
-            elif court3.__contains__(player):
-                court3.remove(player)
-                await ctx.channel.send(f"<@{user_id}>** has left court 3**")
-            elif court4.__contains__(player):
-                court4.remove(player)
-                await ctx.channel.send(f"<@{user_id}>** has left court 4**")
+        if court1.__contains__(player):
+            court1.remove(player)
+            await ctx.channel.send(f"<@{user_id}>** has left court 1**")
+        elif court2.__contains__(player):
+            court2.remove(player)
+            await ctx.channel.send(f"<@{user_id}>** has left court 2**")
+        elif court3.__contains__(player):
+            court3.remove(player)
+            await ctx.channel.send(f"<@{user_id}>** has left court 3**")
+        elif court4.__contains__(player):
+            court4.remove(player)
+            await ctx.channel.send(f"<@{user_id}>** has left court 4**")
         else:
             await ctx.message.channel.send(f"<@{user_id}>**, you are not in a queue**")
 
@@ -89,7 +81,7 @@ def run_bot():
         embed1 = discord.Embed(colour=discord.Colour.orange())
         embed1.set_author(name='__COURT 1__')
         for x in range(len(court1)):
-            if x+1 < 4:
+            if x < 4:
                 if court1[x].nick is None:
                     embed1.add_field(name=[x + 1, court1[x].name], value="currently playing", inline=False)
                 else:
@@ -103,7 +95,7 @@ def run_bot():
         embed2 = discord.Embed(colour=discord.Colour.orange())
         embed2.set_author(name='__COURT 2__')
         for x in range(len(court2)):
-            if x+1 < 4:
+            if x < 4:
                 if court2[x].nick is None:
                     embed2.add_field(name=[x + 1, court2[x].name], value="currently playing", inline=False)
                 else:
@@ -117,7 +109,7 @@ def run_bot():
         embed3 = discord.Embed(colour=discord.Colour.orange())
         embed3.set_author(name='__COURT 3__')
         for x in range(len(court3)):
-            if x+1 < 4:
+            if x < 4:
                 if court3[x].nick is None:
                     embed3.add_field(name=[x + 1, court3[x].name], value="currently playing", inline=False)
                 else:
@@ -131,7 +123,7 @@ def run_bot():
         embed4 = discord.Embed(colour=discord.Colour.orange())
         embed4.set_author(name='__COURT 4__')
         for x in range(len(court4)):
-            if x+1 < 4:
+            if x < 4:
                 if court4[x].nick is None:
                     embed4.add_field(name=[x + 1, court4[x].name], value="currently playing", inline=False)
                 else:
@@ -152,21 +144,44 @@ def run_bot():
     async def _done(ctx, num):
         match num:
             case "1":
-                for x in range(len(court1)):
-                    queue.remove(court1.pop())
                 await ctx.channel.send("**court 1 has finished playing**")
+                for x in range(4):
+                    court1.pop()
+                for x in range(4):
+                    if x < 4:
+                        player_id = court1[x].id
+                        await ctx.channel.send(f"<@{player_id}>")
+                await ctx.channel.send(f"**get ready to play on court 1!**")
+
             case "2":
-                for x in range(len(court1)):
-                    queue.remove(court2.pop())
-                await ctx.channel.send("**court 1 has finished playing**")
+                for x in range(4):
+                    court2.pop()
+                await ctx.channel.send("**court 2 has finished playing**")
+                for x in range(4):
+                    if x < 4:
+                        player_id = court2[x].id
+                        await ctx.channel.send(f"<@{player_id}>")
+                await ctx.channel.send(f"**get ready to play on court 2!**")
+
             case "3":
-                for x in range(len(court1)):
-                    queue.remove(court3.pop())
-                await ctx.channel.send("**court 1 has finished playing**")
+                for x in range(4):
+                    court3.pop()
+                await ctx.channel.send("**court 3 has finished playing**")
+                for x in range(4):
+                    if x < 4:
+                        player_id = court3[x].id
+                        await ctx.channel.send(f"<@{player_id}>")
+                await ctx.channel.send(f"**get ready to play on court 3!**")
+
             case "4":
-                for x in range(len(court1)):
-                    queue.remove(court4.pop())
-                await ctx.channel.send("**court 1 has finished playing**")
+                for x in range(4):
+                    court4.pop()
+                await ctx.channel.send("**court 4 has finished playing**")
+                for x in range(4):
+                    if x < 4:
+                        player_id = court4[x].id
+                        await ctx.channel.send(f"<@{player_id}>")
+                await ctx.channel.send(f"**get ready to play on court 4!**")
             case _:
                 user_id = ctx.message.author.id
                 await ctx.channel.send(f"<@{user_id}>** court_number must be (1-4)**")
