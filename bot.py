@@ -55,7 +55,7 @@ def run_bot():
                 case _: 
                     await ctx.channel.send(f"<@{user_id}>** court_number must be (1-4)**")
         else:
-            await ctx.message.author.send("```you are already in a queue =]```")
+            await ctx.channel.send(f"<@{user_id}>you are already in a queue")
              
     @client.command(name="leave")
     async def _leave(ctx):
@@ -145,39 +145,43 @@ def run_bot():
         match num:
             case "1":
                 await ctx.channel.send("**court 1 has finished playing**")
-                for x in range(4):
-                    court1.pop()
-                for x in range(4):
+                for x in range(len(court1)):
+                    if x < 4:
+                        court1.pop()
+                for x in range(len(court1)):
                     if x < 4:
                         player_id = court1[x].id
                         await ctx.channel.send(f"<@{player_id}>")
                 await ctx.channel.send(f"**get ready to play on court 1!**")
 
             case "2":
-                for x in range(4):
-                    court2.pop()
+                for x in range(len(court2)):
+                    if x < 4:
+                        court2.pop()
                 await ctx.channel.send("**court 2 has finished playing**")
-                for x in range(4):
+                for x in range(len(court2)):
                     if x < 4:
                         player_id = court2[x].id
                         await ctx.channel.send(f"<@{player_id}>")
                 await ctx.channel.send(f"**get ready to play on court 2!**")
 
             case "3":
-                for x in range(4):
-                    court3.pop()
+                for x in range(len(court3)):
+                    if x < 4:
+                        court3.pop()
                 await ctx.channel.send("**court 3 has finished playing**")
-                for x in range(4):
+                for x in range(len(court3)):
                     if x < 4:
                         player_id = court3[x].id
                         await ctx.channel.send(f"<@{player_id}>")
                 await ctx.channel.send(f"**get ready to play on court 3!**")
 
             case "4":
-                for x in range(4):
-                    court4.pop()
+                for x in range(len(court4)):
+                    if x < 4:
+                        court4.pop()
                 await ctx.channel.send("**court 4 has finished playing**")
-                for x in range(4):
+                for x in range(len(court4)):
                     if x < 4:
                         player_id = court4[x].id
                         await ctx.channel.send(f"<@{player_id}>")
