@@ -33,7 +33,7 @@ def run_bot():
         embed.add_field(name='!queue', value="Shows the queues for all courts", inline=False)
         embed.add_field(name='!create <time>am/pm', value="Creates an event", inline=False)
         embed.add_field(name='!show', value="Shows everyone who is interested in going to the created event", inline=False)
-        embed.add_field(name='!done <num> <password>', value="Clears everyone off a court **FOR ADMIN USE ONLY**", inline=False)
+        embed.add_field(name='!done <num>', value="Clears everyone off a court **FOR E-board USE ONLY**", inline=False)
         await ctx.message.author.send(embed=embed)
     
     @client.command(name="join")
