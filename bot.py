@@ -7,7 +7,7 @@ load_dotenv('.env')
 TOKEN = os.environ.get("Token")
 
 def run_bot():
-    client = commands.Bot(command_prefix='!', intents=discord.Intents.all())
+    client = commands.Bot(command_prefix='-', intents=discord.Intents.all())
     client.remove_command('help')
     queue = []
     show = []
@@ -20,7 +20,7 @@ def run_bot():
     @client.event
     async def on_ready():
         print(f'{client.user.name} is now running')
-        await client.change_presence(activity=discord.Game(name="!help"))
+        await client.change_presence(activity=discord.Game(name="-help"))
     
     @client.command(name="help")
     async def _help(ctx):
