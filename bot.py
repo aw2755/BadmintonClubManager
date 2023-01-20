@@ -151,8 +151,7 @@ def run_bot():
                 for x in range(len(court1)):
                     if x < 4:
                         player_id = court1[x].id
-                        await ctx.channel.send(f"<@{player_id}>")
-                await ctx.channel.send(f"**get ready to play on court 1!**")
+                        await ctx.channel.send(f"<@{player_id}> ur up")
 
             case "2":
                 for x in range(len(court2)):
@@ -162,8 +161,7 @@ def run_bot():
                 for x in range(len(court2)):
                     if x < 4:
                         player_id = court2[x].id
-                        await ctx.channel.send(f"<@{player_id}>")
-                await ctx.channel.send(f"**get ready to play on court 2!**")
+                        await ctx.channel.send(f"<@{player_id}> **get ready to play on court 1**")
 
             case "3":
                 for x in range(len(court3)):
@@ -173,8 +171,7 @@ def run_bot():
                 for x in range(len(court3)):
                     if x < 4:
                         player_id = court3[x].id
-                        await ctx.channel.send(f"<@{player_id}>")
-                await ctx.channel.send(f"**get ready to play on court 3!**")
+                        await ctx.channel.send(f"<@{player_id}> **get ready to play on court 1**")
 
             case "4":
                 for x in range(len(court4)):
@@ -184,11 +181,10 @@ def run_bot():
                 for x in range(len(court4)):
                     if x < 4:
                         player_id = court4[x].id
-                        await ctx.channel.send(f"<@{player_id}>")
-                await ctx.channel.send(f"**get ready to play on court 4!**")
+                        await ctx.channel.send(f"<@{player_id}> **get ready to play on court 1**")
             case _:
                 user_id = ctx.message.author.id
-                await ctx.channel.send(f"<@{user_id}>** court_number must be (1-4)**")
+                await ctx.channel.send(f"<@{user_id}> **court_number must be (1-4)**")
 
     @client.command(name="create")
     async def _create(ctx, time):
