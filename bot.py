@@ -1,5 +1,7 @@
 import discord
 import os
+from court import Court
+from player import Player
 from discord.ext import commands
 from dotenv import load_dotenv
 
@@ -10,10 +12,14 @@ def run_bot():
     client = commands.Bot(command_prefix='-', intents=discord.Intents.all())
     client.remove_command('help')
     show = []
-    court1 = []
-    court2 = []
-    court3 = []
-    court4 = []
+    court1 = Court(court_num=1)
+    court2 = Court(court_num=2)
+    court3 = Court(court_num=3)
+    court4 = Court(court_num=4)
+    courts = {1: court1,
+              2: court2,
+              3: court3,
+              4: court4}
     
 
     @client.event
@@ -38,43 +44,38 @@ def run_bot():
     async def _join(ctx, court_num):
         user_id = ctx.message.author.id
         player = ctx.message.author
-        if (not court1.__contains__(player)) and (not court2.__contains__(player)) and (not court3.__contains__(player)) and (not court4.__contains__(player)):
-            match court_num:
-                case "1":
-                    court1.append(player)
-                    await ctx.channel.send(f"<@{user_id}>** has joined court 1**")
-                case "2":
-                    court2.append(player)
-                    await ctx.channel.send(f"<@{user_id}>** has joined court 2**")
-                case "3":
-                    court3.append(player)
-                    await ctx.channel.send(f"<@{user_id}>** has joined court 3**")
-                case "4":
-                    court4.append(player)
-                    await ctx.channel.send(f"<@{user_id}>** has joined court 4**")
-                case _: 
-                    await ctx.channel.send(f"<@{user_id}>** court_number must be (1-4)**")
+
+        court = courts.get(int(court_num))
+        if court is None:
+            await ctx.channel.send(f"<@{user_id}>** Court's number must be (1-4)**")
+
+        court_count = 0
+        for court_obj in courts.values():
+            if court_obj.has(user_id):
+                court_count += 1
+                if court_obj.court_num == court_num:
+                    await ctx.channel.send(f"<@{user_id}> you are already on Court {court_num}")
+                if court_count == 2:
+                    await ctx.channel.send(f"<@{user_id}> you cannot join more than 2 courts")
+
+        success = court.add_player(player)
+        if success:
+            await ctx.channel.send(f"<@{user_id}>** has joined Court {court_num}**")
         else:
-            await ctx.channel.send(f"<@{user_id}>you are already in a queue")
+            await ctx.channel.send(f"<@{user_id}>** Court {court_num} is too full.")
+ 
              
     @client.command(name="leave")
     async def _leave(ctx):
         user_id = ctx.message.author.id
         player = ctx.message.author
-        if court1.__contains__(player):
-            court1.remove(player)
-            await ctx.channel.send(f"<@{user_id}>** has left court 1**")
-        elif court2.__contains__(player):
-            court2.remove(player)
-            await ctx.channel.send(f"<@{user_id}>** has left court 2**")
-        elif court3.__contains__(player):
-            court3.remove(player)
-            await ctx.channel.send(f"<@{user_id}>** has left court 3**")
-        elif court4.__contains__(player):
-            court4.remove(player)
-            await ctx.channel.send(f"<@{user_id}>** has left court 4**")
-        else:
-            await ctx.message.channel.send(f"<@{user_id}>**, you are not in a queue**")
+        
+        for court in courts.values():
+            if court.has(user_id):
+                court.remove_player(player)
+                await ctx.channel.send(f"<@{user_id}>** has left Court {court.court_num}**")
+                return
+        await ctx.message.channel.send(f"<@{user_id}>**, you are not in Court {court.court_num}**")
 
     @client.command(name="queue")
     async def _queue(ctx):
