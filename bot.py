@@ -1,12 +1,11 @@
 import discord
 import os
 from court import Court
-from player import Player
 from discord.ext import commands
 from dotenv import load_dotenv
 
 load_dotenv('.env')
-TOKEN = os.environ.get("Token")
+TOKEN = os.getenv("Token")
 
 def run_bot():
     client = commands.Bot(command_prefix='-', intents=discord.Intents.all())
@@ -45,20 +44,26 @@ def run_bot():
         user_id = ctx.message.author.id
         player = ctx.message.author
 
-        court = courts.get(int(court_num))
-        if court is None:
+        try:
+            court = courts.get(int(court_num))
+            if court is None:
+                raise ValueError
+        except ValueError:
             await ctx.channel.send(f"<@{user_id}>** Court's number must be (1-4)**")
+            return
 
         court_count = 0
         for court_obj in courts.values():
             if court_obj.has(user_id):
                 court_count += 1
-                if court_obj.court_num == court_num:
+                if court_obj.court_num == int(court_num):
                     await ctx.channel.send(f"<@{user_id}> you are already on Court {court_num}")
+                    return
                 if court_count == 2:
                     await ctx.channel.send(f"<@{user_id}> you cannot join more than 2 courts")
+                    return
 
-        success = court.add_player(player)
+        success = court.add_player(user_id)
         if success:
             await ctx.channel.send(f"<@{user_id}>** has joined Court {court_num}**")
         else:
@@ -66,16 +71,16 @@ def run_bot():
  
              
     @client.command(name="leave")
-    async def _leave(ctx):
+    async def _leave(ctx, court_num):
         user_id = ctx.message.author.id
         player = ctx.message.author
         
-        for court in courts.values():
-            if court.has(user_id):
-                court.remove_player(player)
-                await ctx.channel.send(f"<@{user_id}>** has left Court {court.court_num}**")
-                return
-        await ctx.message.channel.send(f"<@{user_id}>**, you are not in Court {court.court_num}**")
+        court = courts.get(int(court_num))
+        success = court.remove_player(user_id)
+        if success:
+            await ctx.channel.send(f"<@{user_id}>** has left Court {court_num}**")
+        else:
+            await ctx.message.channel.send(f"<@{user_id}>**, you are not in Court {court_num}**")
 
     @client.command(name="queue")
     async def _queue(ctx):
@@ -237,5 +242,6 @@ def run_bot():
             user_id = ctx.message.author.id
             await ctx.channel.send(f"**Please pass in all required argumenets <@{user_id}>. Type !help for list of commands**")
 
+    client.run(TOKEN)
 
-    client.run(str(TOKEN))
+

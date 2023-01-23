@@ -1,14 +1,14 @@
 class Court:
     court_num: int
-    players: set
-    queue: list
+    players: list
 
-    def __init__(self, id: int):
-        self.id = id
+    def __init__(self, court_num: int):
+        self.court_num = court_num
+        self.players = []
 
     def add_player(self, player: str) -> int:
-        if len(self.players) > 4:
-            self.players.add(player)
+        if len(self.players) <= 4:
+            self.players.append(player)
             return 1
         return 0
 

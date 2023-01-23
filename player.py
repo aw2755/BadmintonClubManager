@@ -6,6 +6,7 @@ class Player:
     def __init__(self, id: str, name: str):
         self.id = id
         self.name = name
+        self.courts = []
 
     def join_court(self, court_num: int):
         if len(self.courts) < 3:
