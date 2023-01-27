@@ -1,19 +1,24 @@
 import discord
 import os
+from court import Court
 from discord.ext import commands
 from dotenv import load_dotenv
 
 load_dotenv('.env')
-TOKEN = os.environ.get("Token")
+TOKEN = os.getenv("Token")
 
 def run_bot():
     client = commands.Bot(command_prefix='-', intents=discord.Intents.all())
     client.remove_command('help')
     show = []
-    court1 = []
-    court2 = []
-    court3 = []
-    court4 = []
+    court1 = Court(court_num=1)
+    court2 = Court(court_num=2)
+    court3 = Court(court_num=3)
+    court4 = Court(court_num=4)
+    courts = {1: court1,
+              2: court2,
+              3: court3,
+              4: court4}
     
 
     @client.event
@@ -38,153 +43,78 @@ def run_bot():
     async def _join(ctx, court_num):
         user_id = ctx.message.author.id
         player = ctx.message.author
-        if (not court1.__contains__(player)) and (not court2.__contains__(player)) and (not court3.__contains__(player)) and (not court4.__contains__(player)):
-            match court_num:
-                case "1":
-                    court1.append(player)
-                    await ctx.channel.send(f"<@{user_id}>** has joined court 1**")
-                case "2":
-                    court2.append(player)
-                    await ctx.channel.send(f"<@{user_id}>** has joined court 2**")
-                case "3":
-                    court3.append(player)
-                    await ctx.channel.send(f"<@{user_id}>** has joined court 3**")
-                case "4":
-                    court4.append(player)
-                    await ctx.channel.send(f"<@{user_id}>** has joined court 4**")
-                case _: 
-                    await ctx.channel.send(f"<@{user_id}>** court_number must be (1-4)**")
+
+        try:
+            court = courts.get(int(court_num))
+            if court is None:
+                raise ValueError
+        except ValueError:
+            await ctx.channel.send(f"<@{user_id}>** Court's number must be (1-4)**")
+            return
+
+
+        for cur_court in courts.values():
+            if cur_court.has(player):
+                await ctx.channel.send(f"<@{user_id}>you are already in Court {cur_court.court_num}. You can only join one court.")
+                return
+
+        success = court.add_player(player)
+        if success:
+            await ctx.channel.send(f"<@{user_id}>** has joined Court {court_num}**")
         else:
-            await ctx.channel.send(f"<@{user_id}>you are already in a queue")
+            await ctx.channel.send(f"<@{user_id}> you are already on Court {court_num}")
+
+ 
              
     @client.command(name="leave")
     async def _leave(ctx):
         user_id = ctx.message.author.id
         player = ctx.message.author
-        if court1.__contains__(player):
-            court1.remove(player)
-            await ctx.channel.send(f"<@{user_id}>** has left court 1**")
-        elif court2.__contains__(player):
-            court2.remove(player)
-            await ctx.channel.send(f"<@{user_id}>** has left court 2**")
-        elif court3.__contains__(player):
-            court3.remove(player)
-            await ctx.channel.send(f"<@{user_id}>** has left court 3**")
-        elif court4.__contains__(player):
-            court4.remove(player)
-            await ctx.channel.send(f"<@{user_id}>** has left court 4**")
+        
+        player_court = None
+        for court in courts.values():
+            if court.has(player):
+                player_court = court
+                break
+        if player_court is None:
+            await ctx.message.channel.send(f"<@{user_id}>**, you are not in a court**")
         else:
-            await ctx.message.channel.send(f"<@{user_id}>**, you are not in a queue**")
+            player_court.remove_player(player)
+            await ctx.channel.send(f"<@{user_id}>** has left Court {player_court.court_num}**")
+
 
     @client.command(name="queue")
     async def _queue(ctx):
-        embed1 = discord.Embed(colour=discord.Colour.orange())
-        embed1.set_author(name='__COURT 1__')
-        for x in range(len(court1)):
-            if x < 4:
-                if court1[x].nick is None:
-                    embed1.add_field(name=[x + 1, court1[x].name], value="currently playing", inline=False)
-                else:
-                    embed1.add_field(name=[x + 1, court1[x].nick], value="currently playing", inline=False)
-            else:
-                if court1[x].nick is None:
-                    embed1.add_field(name=[x + 1, court1[x].name], value="", inline=False)
-                else:
-                    embed1.add_field(name=[x + 1, court1[x].nick], value="", inline=False)
+        for court in courts.values():
+            embed = discord.Embed(colour=discord.Colour.orange())
+            embed.set_author(name=f'__COURT {court.court_num}__')
+            for num_player, player in enumerate(court.players):
+                message = "currently playing" if num_player < 4 else "waiting in queue"
+                name = player.name if player.nick is None else player.name
+                embed.add_field(name=[num_player + 1, name], value=message, inline=False)
+            await ctx.channel.send(embed=embed)
 
-        embed2 = discord.Embed(colour=discord.Colour.orange())
-        embed2.set_author(name='__COURT 2__')
-        for x in range(len(court2)):
-            if x < 4:
-                if court2[x].nick is None:
-                    embed2.add_field(name=[x + 1, court2[x].name], value="currently playing", inline=False)
-                else:
-                    embed2.add_field(name=[x + 1, court2[x].nick], value="currently playing", inline=False)
-            else:
-                if court2[x].nick is None:
-                    embed2.add_field(name=[x + 1, court2[x].name], value="", inline=False)
-                else:
-                    embed2.add_field(name=[x + 1, court2[x].nick], value="", inline=False)
-
-        embed3 = discord.Embed(colour=discord.Colour.orange())
-        embed3.set_author(name='__COURT 3__')
-        for x in range(len(court3)):
-            if x < 4:
-                if court3[x].nick is None:
-                    embed3.add_field(name=[x + 1, court3[x].name], value="currently playing", inline=False)
-                else:
-                    embed3.add_field(name=[x + 1, court3[x].nick], value="currently playing", inline=False)
-            else:
-                if court3[x].nick is None:
-                    embed3.add_field(name=[x + 1, court3[x].name], value="", inline=False)
-                else:
-                    embed3.add_field(name=[x + 1, court3[x].nick], value="", inline=False)
-        
-        embed4 = discord.Embed(colour=discord.Colour.orange())
-        embed4.set_author(name='__COURT 4__')
-        for x in range(len(court4)):
-            if x < 4:
-                if court4[x].nick is None:
-                    embed4.add_field(name=[x + 1, court4[x].name], value="currently playing", inline=False)
-                else:
-                    embed4.add_field(name=[x + 1, court4[x].nick], value="currently playing", inline=False)    
-            else:
-                if court4[x].nick is None:
-                    embed4.add_field(name=[x + 1, court4[x].name], value="", inline=False)
-                else:
-                    embed4.add_field(name=[x + 1, court4[x].nick], value="", inline=False)  
-
-        await ctx.channel.send(embed=embed1)
-        await ctx.channel.send(embed=embed2)
-        await ctx.channel.send(embed=embed3)
-        await ctx.channel.send(embed=embed4)
 
     @client.command(name="done")
     @commands.has_role('E-board')
-    async def _done(ctx, num):
-        match num:
-            case "1":
-                await ctx.channel.send("**court 1 has finished playing**")
-                for x in range(len(court1)):
-                    if x < 4:
-                        court1.pop()
-                for x in range(len(court1)):
-                    if x < 4:
-                        player_id = court1[x].id
-                        await ctx.channel.send(f"<@{player_id}> ur up")
+    async def _done(ctx, court_num, player_count = 4):
+        user_id = ctx.message.author.id
+        court = courts.get(int(court_num))
+        if court is None:
+            await ctx.channel.send(f"<@{user_id}> **court_number must be (1-4)**")
+        else:
+            await ctx.channel.send(f"**Court {court_num} has finished playing**")
+            for i in range(player_count):
+                try:
+                    court.players.pop()
+                except IndexError:
+                    await ctx.channel.send(f"<@{user_id}> **popped more players than there is on Court {court_num}**")
+                    break
+            for i in range(len(court.players)):
+                if i < 4:
+                    player = court.players[i]
+                    await ctx.channel.send(f"<@{player.id}> get ready to play on Court {court_num}")
 
-            case "2":
-                for x in range(len(court2)):
-                    if x < 4:
-                        court2.pop()
-                await ctx.channel.send("**court 2 has finished playing**")
-                for x in range(len(court2)):
-                    if x < 4:
-                        player_id = court2[x].id
-                        await ctx.channel.send(f"<@{player_id}> **get ready to play on court 1**")
-
-            case "3":
-                for x in range(len(court3)):
-                    if x < 4:
-                        court3.pop()
-                await ctx.channel.send("**court 3 has finished playing**")
-                for x in range(len(court3)):
-                    if x < 4:
-                        player_id = court3[x].id
-                        await ctx.channel.send(f"<@{player_id}> **get ready to play on court 1**")
-
-            case "4":
-                for x in range(len(court4)):
-                    if x < 4:
-                        court4.pop()
-                await ctx.channel.send("**court 4 has finished playing**")
-                for x in range(len(court4)):
-                    if x < 4:
-                        player_id = court4[x].id
-                        await ctx.channel.send(f"<@{player_id}> **get ready to play on court 1**")
-            case _:
-                user_id = ctx.message.author.id
-                await ctx.channel.send(f"<@{user_id}> **court_number must be (1-4)**")
 
     @client.command(name="create")
     async def _create(ctx, time):
@@ -236,5 +166,6 @@ def run_bot():
             user_id = ctx.message.author.id
             await ctx.channel.send(f"**Please pass in all required argumenets <@{user_id}>. Type !help for list of commands**")
 
+    client.run(TOKEN)
 
-    client.run(str(TOKEN))
+
