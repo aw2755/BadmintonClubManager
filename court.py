@@ -6,15 +6,15 @@ class Court:
         self.court_num = court_num
         self.players = []
 
-    def add_player(self, player: str) -> int:
-        if len(self.players) <= 4:
-            self.players.append(player)
+    def add_player(self, player_id: int) -> int:
+        if player_id not in self.players:
+            self.players.append(player_id)
             return 1
         return 0
 
-    def remove_player(self, player: str) -> int:
-        if player in self.players:
-            self.players.remove(player)
+    def remove_player(self, player_id: int) -> int:
+        if player_id in self.players:
+            self.players.remove(player_id)
             return 1
         return 0
 

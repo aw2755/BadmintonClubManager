@@ -52,35 +52,36 @@ def run_bot():
             await ctx.channel.send(f"<@{user_id}>** Court's number must be (1-4)**")
             return
 
-        court_count = 0
-        for court_obj in courts.values():
-            if court_obj.has(user_id):
-                court_count += 1
-                if court_obj.court_num == int(court_num):
-                    await ctx.channel.send(f"<@{user_id}> you are already on Court {court_num}")
-                    return
-                if court_count == 2:
-                    await ctx.channel.send(f"<@{user_id}> you cannot join more than 2 courts")
-                    return
+
+        for cur_court in courts.values():
+            if cur_court.has(user_id):
+                await ctx.channel.send(f"<@{user_id}>you are already in Court {cur_court.court_num}. You can only join one court.")
+                return
 
         success = court.add_player(user_id)
         if success:
             await ctx.channel.send(f"<@{user_id}>** has joined Court {court_num}**")
         else:
-            await ctx.channel.send(f"<@{user_id}>** Court {court_num} is too full.")
+            await ctx.channel.send(f"<@{user_id}> you are already on Court {court_num}")
+
  
              
     @client.command(name="leave")
-    async def _leave(ctx, court_num):
+    async def _leave(ctx):
         user_id = ctx.message.author.id
         player = ctx.message.author
         
-        court = courts.get(int(court_num))
-        success = court.remove_player(user_id)
-        if success:
-            await ctx.channel.send(f"<@{user_id}>** has left Court {court_num}**")
+        player_court = None
+        for court in courts.values():
+            if court.has(user_id):
+                player_court = court
+                break
+        if player_court is None:
+            await ctx.message.channel.send(f"<@{user_id}>**, you are not in a court**")
         else:
-            await ctx.message.channel.send(f"<@{user_id}>**, you are not in Court {court_num}**")
+            player_court.remove_player(user_id)
+            await ctx.channel.send(f"<@{user_id}>** has left Court {player_court.court_num}**")
+
 
     @client.command(name="queue")
     async def _queue(ctx):
